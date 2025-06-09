@@ -1,8 +1,9 @@
-import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
+import express from "express";
 import connectDB from './config/db.js';
 import blogRoutes from "./routes/blogRoutes.js";
+import emailRoutes from "./routes/emailRoutes.js";
 
 // Inicializar o app
 const app = express();
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 
 // Rotas
 app.use("/api", blogRoutes);
+app.use("/api", emailRoutes);
 
 // Rota de teste
 app.get("/", (req, res) => {

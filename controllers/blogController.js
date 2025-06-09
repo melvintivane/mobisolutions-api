@@ -1,10 +1,19 @@
+import { uploadImages } from "../config/multerConfig.js";
 import BlogPost from "../models/BlogPost.js";
-import { uploadBlogImage } from "../config/multerConfig.js";
 
-// Middleware para upload de imagem
+//Midleware para upload de imagens
 export const uploadImage = (req, res, next) => {
-  uploadBlogImage(req, res, (err) => {
+  uploadImages(req, res, (err) => {
     if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ message: "Arquivo muito grande (máx. 5MB)" });
+      }
+      if (err.message.includes('unexpected field')) {
+        return res.status(400).json({ 
+          message: `Campo inválido no upload. Use apenas 'thumb' e 'blogImg'`,
+          received: Object.keys(req.body).concat(Object.keys(req.files || {}))
+        });
+      }
       return res.status(400).json({ message: err.message });
     }
     next();
@@ -14,11 +23,32 @@ export const uploadImage = (req, res, next) => {
 // Criar um novo post
 export const createPost = async (req, res) => {
   try {
-    const { body, file } = req;
+    const { blogTitle, authorName,authorResume, date, mainText, quoteText } = req.body;
+    
+    // Verificar se os arquivos foram enviados corretamente
+    if (!req.files || !req.files['thumb']) {
+      return res.status(400).json({ message: "Thumbnail é obrigatória" });
+    }
+
+    const thumb = `/uploads/thumbs/${req.files['thumb'][0].filename}`;
+    const authorProfileImg = req.files['authorProfileImg'] 
+      ? `/uploads/authorImgs/${req.files['authorProfileImg'][0].filename}`
+      : null;
 
     const postData = {
-      ...body,
-      blogImg: file ? `/uploads/blog-images/${file.filename}` : null,
+      thumb :thumb,
+      blogTitle: blogTitle,
+      authorProfileImg : authorProfileImg || "/uploads/authorImgs/default.png", // Imagem padrão se não for enviada
+      authorName : authorName,
+      authorResume : authorResume,
+      // Usar a data atual se não for fornecida
+      date: date || new Date(),
+      blogTitle : blogTitle,
+      mainText : mainText,
+      quoteText : quoteText,
+      // Campos com valores padrão
+      btnText: req.body.btnText || "Continuar Lendo",
+      btnIcon: req.body.btnIcon || "fa-solid fa-arrow-right"
     };
 
     const newPost = new BlogPost(postData);
