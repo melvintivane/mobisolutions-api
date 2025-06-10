@@ -2,33 +2,42 @@ import { Schema, model } from "mongoose";
 
 const blogPostSchema = new Schema(
   {
+    authorProfileImg: {
+      type: String,
+      required: true,
+    },
+    blogTitle: {
+      type: String,
+      required: true,
+    },
     thumb: {
-      type: String,
-      required: true,
-    },
-    blogPostLink: {
-      type: String,
-      required: true,
-    },
-    blogImg: {
       type: String,
       required: false,
     },
-    author: {
+    authorName: {
       type: String,
+      required: true,
+    },
+    authorResume: {
+      type: String, 
       required: true,
     },
     date: {
+      type: Date, // Usar Date em vez de String
+      required: true,
+      default: Date.now,
+    },
+    blogTitle: {
       type: String,
       required: true,
     },
-    title: {
+    mainText: {
       type: String,
       required: true,
     },
-    text: {
+    quoteText: {
       type: String,
-      required: true,
+      required: false,
     },
     btnText: {
       type: String,
