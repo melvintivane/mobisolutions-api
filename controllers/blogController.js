@@ -20,9 +20,10 @@ export const uploadImage = (req, res, next) => {
   });
 };
 
-// Criar um novo post
+
 export const createPost = async (req, res) => {
   try {
+
     const { blogTitle, authorName,authorResume, date, mainText, quoteText } = req.body;
     
     // Verificar se os arquivos foram enviados corretamente
@@ -41,12 +42,10 @@ export const createPost = async (req, res) => {
       authorProfileImg : authorProfileImg || "/uploads/authorImgs/default.png", // Imagem padrão se não for enviada
       authorName : authorName,
       authorResume : authorResume,
-      // Usar a data atual se não for fornecida
       date: date || new Date(),
       blogTitle : blogTitle,
       mainText : mainText,
       quoteText : quoteText,
-      // Campos com valores padrão
       btnText: req.body.btnText || "Continuar Lendo",
       btnIcon: req.body.btnIcon || "fa-solid fa-arrow-right"
     };
@@ -60,7 +59,7 @@ export const createPost = async (req, res) => {
   }
 };
 
-// Obter todos os posts
+
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await BlogPost.find();
@@ -70,43 +69,52 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
-// Obter um post por ID
+
 export const getPostById = async (req, res) => {
   try {
+
     const post = await BlogPost.findById(req.params.id);
+
     if (!post) {
       return res.status(404).json({ message: "Post não encontrado" });
     }
+
     res.status(200).json(post);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Atualizar um post
+
 export const updatePost = async (req, res) => {
   try {
+
     const updatedPost = await BlogPost.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
+
     if (!updatedPost) {
       return res.status(404).json({ message: "Post não encontrado" });
     }
+
     res.status(200).json(updatedPost);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// Deletar um post
+
 export const deletePost = async (req, res) => {
   try {
+
     const deletedPost = await BlogPost.findByIdAndDelete(req.params.id);
+
     if (!deletedPost) {
       return res.status(404).json({ message: "Post não encontrado" });
     }
+
     res.status(200).json({ message: "Post deletado com sucesso" });
   } catch (error) {
     res.status(500).json({ message: error.message });
