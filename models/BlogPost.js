@@ -14,6 +14,11 @@ const blogPostSchema = new Schema(
       type: String,
       required: false,
     },
+    status: {
+      type: String,
+      enum: ["draft", "published", "archived"],
+      default: "draft",
+    },
     authorName: {
       type: String,
       required: true,
@@ -23,7 +28,7 @@ const blogPostSchema = new Schema(
       required: true,
     },
     date: {
-      type: Date, // Usar Date em vez de String
+      type: Date,
       required: true,
       default: Date.now,
     },
