@@ -1,47 +1,40 @@
-import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
+import multer, { diskStorage } from 'multer';
+import { extname } from 'path';
+import { existsSync, mkdirSync } from 'fs';
+import { Router } from "express";
+const router = Router();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configuração do armazenamento
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.fieldname === 'thumb') {
-      cb(null, path.join(__dirname, "../uploads/thumbs")); // Pasta para thumbs
-    } else if (file.fieldname === 'authorProfileImg') {
-      cb(null, path.join(__dirname, "../uploads/authorImgs")); // Pasta para blogImgs
-    } else {
-      cb(new Error("Tipo de arquivo não suportado"));
+// Configuração do Multer
+const storage = diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = 'public/uploads/';
+    if (!existsSync(uploadDir)) {
+      mkdirSync(uploadDir, { recursive: true });
     }
+    cb(null, uploadDir);
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + extname(file.originalname));
+  }
 });
 
-// Configuração do multer
-const upload = multer({
+const upload = multer({ 
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error("Apenas imagens são permitidas (jpeg, jpg, png, gif)"));
-  },
+  limits: { fileSize: 5 * 1024 * 1024 } // Limite de 5MB
 });
 
-// Exportar middleware para múltiplos arquivos
-export const uploadImages = upload.fields([
-  { name: 'thumb', maxCount: 1 },
-  { name: 'authorProfileImg', maxCount: 1 },
-]);
+// Rota para upload de imagens
+router.post('/upload-image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+    }
+
+    const imageUrl = `/uploads/${req.file.filename}`;
+    res.json({ imageUrl });
+  } catch (error) {
+    console.error('Erro no upload de imagem:', error);
+    res.status(500).json({ error: 'Erro ao processar o upload' });
+  }
+});
