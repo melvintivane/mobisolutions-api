@@ -1,27 +1,27 @@
-import { uploadImages } from "../config/multerConfig.js";
+// import { uploadImages } from "../config/multerConfig.js";
 import { createPost, getPaginatedPosts } from "../services/blogService.js";
 import BlogPost from "../models/BlogPost.js";
 
 //Midleware para upload de imagens
-export const uploadImage = (req, res, next) => {
-  uploadImages(req, res, (err) => {
-    if (err) {
-      if (err.code === "LIMIT_FILE_SIZE") {
-        return res
-          .status(400)
-          .json({ message: "Arquivo muito grande (máx. 5MB)" });
-      }
-      if (err.message.includes("unexpected field")) {
-        return res.status(400).json({
-          message: `Campo inválido no upload. Use apenas 'thumb' e 'blogImg'`,
-          received: Object.keys(req.body).concat(Object.keys(req.files || {})),
-        });
-      }
-      return res.status(400).json({ message: err.message });
-    }
-    next();
-  });
-};
+// export const uploadImage = (req, res, next) => {
+//   uploadImages(req, res, (err) => {
+//     if (err) {
+//       if (err.code === "LIMIT_FILE_SIZE") {
+//         return res
+//           .status(400)
+//           .json({ message: "Arquivo muito grande (máx. 5MB)" });
+//       }
+//       if (err.message.includes("unexpected field")) {
+//         return res.status(400).json({
+//           message: `Campo inválido no upload. Use apenas 'thumb' e 'blogImg'`,
+//           received: Object.keys(req.body).concat(Object.keys(req.files || {})),
+//         });
+//       }
+//       return res.status(400).json({ message: err.message });
+//     }
+//     next();
+//   });
+// };
 
 export const createBlogPost = async (req, res) => {
   try {
